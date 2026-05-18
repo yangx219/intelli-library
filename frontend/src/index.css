@@ -1,0 +1,85 @@
+:root {
+  color-scheme: light;
+
+  --bg-deep: #ebe6dc;
+  --bg-warm: #f5f1ea;
+  --paper: #fffcf7;
+  --paper-elevated: #fffdfa;
+  --surface: rgba(255, 252, 247, 0.92);
+  --surface-strong: rgba(248, 244, 237, 0.98);
+  --border: rgba(62, 54, 46, 0.1);
+  --border-strong: rgba(62, 54, 46, 0.16);
+
+  --text: rgba(44, 40, 36, 0.82);
+  --text-muted: rgba(76, 69, 61, 0.72);
+  --text-heading: #2a2622;
+
+  --accent: #8b6914;
+  --accent-soft: #c4a35a;
+  --accent-dim: rgba(139, 105, 20, 0.08);
+  --sage: #5c6b5e;
+  --sage-dim: rgba(92, 107, 94, 0.12);
+  --rose-dust: #a67c7c;
+  --gold: #b8860b;
+
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-full: 9999px;
+
+  --font-sans: 'Source Sans 3', 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
+  /* Section titles, book names — bookish serif */
+  --font-display: 'Libre Baskerville', Georgia, 'Times New Roman', serif;
+  /* Masthead / splash headline — newspaper-style display */
+  --font-masthead: 'Playfair Display', 'Libre Baskerville', Georgia, 'Times New Roman', serif;
+  --font-mono: ui-monospace, Consolas, monospace;
+
+  --shadow-card: 0 1px 0 rgba(255, 255, 255, 0.85) inset, 0 18px 40px -28px rgba(42, 38, 34, 0.22),
+    0 0 0 1px rgba(62, 54, 46, 0.06);
+  --shadow-float: 0 28px 56px -36px rgba(42, 38, 34, 0.25);
+
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.58;
+  font-feature-settings: 'kern' 1, 'liga' 1;
+  color: var(--text);
+  background-color: var(--bg-warm);
+  font-synthesis: none;
+  text-rendering: geometricPrecision;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+#root {
+  min-height: 100svh;
+  width: 100%;
+}
+
+body {
+  margin: 0;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--text-heading);
+}
+
+code {
+  font-family: var(--font-mono);
+  font-size: 0.84em;
+  padding: 0.12em 0.45em;
+  border-radius: 6px;
+  background: rgba(139, 105, 20, 0.06);
+  border: 1px solid var(--border);
+  color: var(--accent);
+}

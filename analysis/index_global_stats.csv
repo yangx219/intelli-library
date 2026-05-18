@@ -1,0 +1,5 @@
+metric,value
+N_docs,1664
+avg_doc_len,37518.32872596154
+vocab_size_after_filter,73845
+posting_total,3931832

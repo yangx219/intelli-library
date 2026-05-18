@@ -1,0 +1,22 @@
+# Render Blueprint: backend API only (Docker).
+# After deploy: copy the service URL → Vercel env `VITE_API_BASE` (no trailing slash).
+# SQLite: free ephemeral disk resets when the service redeploys — bake `library/db_index.sqlite3`
+# into the image for a stable demo (see README deploy note), or attach a paid persistent disk.
+services:
+  - type: web
+    name: intelli-book-api
+    runtime: docker
+    plan: free
+    dockerfilePath: ./library/Dockerfile
+    dockerContext: ./library
+    healthCheckPath: /api/health
+    envVars:
+      - key: DJANGO_DEBUG
+        value: "false"
+      - key: ALLOWED_HOSTS
+        value: ".onrender.com,localhost,127.0.0.1"
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+      # Add in dashboard after you have the Vercel URL (comma-separated, full origins with https://):
+      # CORS_ALLOWED_ORIGINS=https://your-app.vercel.app
+      # CSRF_TRUSTED_ORIGINS=https://your-app.vercel.app
