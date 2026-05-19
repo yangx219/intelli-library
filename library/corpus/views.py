@@ -1,9 +1,10 @@
 import json
 import os
+import re
 import time
 from typing import Any
 
-from django.conf import settings
+import requests
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_GET, require_http_methods
@@ -16,6 +17,12 @@ from corpus.backend.search_service import SearchService
 from corpus.cover_resolution import resolve_cover_url
 from corpus.curated_classics import CURATED_CLASSICS, SAMPLE_FALLBACK
 from corpus.models import Book, DocumentScore, IndexStat, Term
+
+_OPEN_LIBRARY_SEARCH = "https://openlibrary.org/search.json"
+_OPEN_LIBRARY_UA = (
+    "Mozilla/5.0 (compatible; IntelliBookEngine/1.2; +https://openlibrary.org/dev/docs/api)"
+)
+_OL_FIELDS_OK = re.compile(r"^[a-z0-9_,]{1,120}$", re.I)
 
 
 def _authors_from_book(authors_raw: str) -> list[str]:
@@ -142,11 +149,68 @@ def api_root(request):
                 "index_stats": "/api/index/stats",
                 "catalog_popular": "/api/catalog/popular",
                 "catalog_classics": "/api/catalog/classics",
+                "openlibrary_search": "/api/openlibrary/search",
                 "ai_explain": "POST /api/ai/explain",
                 "ai_chat": "POST /api/ai/chat",
             },
         }
     )
+
+
+@require_GET
+def openlibrary_search_proxy(request):
+    """
+    Proxy Open Library search.json for the SPA. Browsers cannot call openlibrary.org from other
+    origins (no Access-Control-Allow-Origin); server-side fetch avoids CORS.
+    """
+    title = (request.GET.get("title") or "").strip()
+    author = (request.GET.get("author") or "").strip()
+    if not title and not author:
+        return JsonResponse({"numFound": 0, "docs": []})
+
+    try:
+        limit = int(request.GET.get("limit", "8"))
+    except ValueError:
+        limit = 8
+    limit = max(1, min(limit, 25))
+
+    fields_raw = (request.GET.get("fields") or "cover_i,title,author_name").strip()
+    fields = fields_raw if _OL_FIELDS_OK.fullmatch(fields_raw) else "cover_i,title,author_name"
+
+    params: dict[str, str] = {"limit": str(limit), "fields": fields}
+    if title:
+        params["title"] = title[:500]
+    if author:
+        params["author"] = author[:200]
+
+    try:
+        r = requests.get(
+            _OPEN_LIBRARY_SEARCH,
+            params=params,
+            headers={"User-Agent": _OPEN_LIBRARY_UA},
+            timeout=25,
+        )
+    except requests.RequestException as exc:
+        return JsonResponse(
+            {"error": "open_library_unreachable", "detail": str(exc)},
+            status=502,
+        )
+
+    if not r.ok:
+        return JsonResponse(
+            {"error": "open_library_http", "status": r.status_code},
+            status=502,
+        )
+
+    try:
+        payload = r.json()
+    except ValueError:
+        return JsonResponse({"error": "open_library_bad_json"}, status=502)
+
+    if not isinstance(payload, dict):
+        return JsonResponse({"error": "open_library_bad_shape"}, status=502)
+
+    return JsonResponse(payload)
 
 
 @require_GET

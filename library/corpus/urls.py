@@ -9,6 +9,7 @@ urlpatterns = [
     path("index/stats", views.index_stats_view),
     path("catalog/popular", views.popular_books_view),
     path("catalog/classics", views.classic_books_view),
+    path("openlibrary/search", views.openlibrary_search_proxy),
     path("ai/explain", views.ai_explain_view),
     path("ai/chat", views.ai_chat_view),
 ]
